@@ -1,0 +1,35 @@
+{
+  "name": "base-argv",
+  "description": "Plugin for base-methods for normalizing the argv object to be easier to use based on preset commants and options.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/jonschlinkert/base-argv",
+  "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
+  "repository": "jonschlinkert/base-argv",
+  "bugs": {
+    "url": "https://github.com/jonschlinkert/base-argv/issues"
+  },
+  "license": "MIT",
+  "files": [
+    "index.js"
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+    "extend-shallow": "^2.0.1",
+    "yargs": "^3.29.0"
+  },
+  "keywords": [
+    "argv",
+    "base"
+  ],
+  "verb": {
+    "related": {
+      "list": []
+    }
+  }
+}
