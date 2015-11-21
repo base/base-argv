@@ -20,8 +20,12 @@
     "test": "mocha"
   },
   "dependencies": {
-    "extend-shallow": "^2.0.1",
-    "yargs": "^3.29.0"
+    "expand-args": "^0.3.0",
+    "expand-object": "^0.4.0",
+    "isobject": "^2.0.0",
+    "object.omit": "^2.0.0",
+    "object.pick": "^1.1.1",
+    "union-value": "^0.2.1"
   },
   "keywords": [
     "argv",
@@ -31,5 +35,9 @@
     "related": {
       "list": []
     }
+  },
+  "devDependencies": {
+    "minimist": "^1.2.0",
+    "mocha": "^2.3.4"
   }
 }
