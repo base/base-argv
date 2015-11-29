@@ -1,7 +1,7 @@
 {
   "name": "base-argv",
-  "description": "Plugin for base-methods for normalizing the argv object to be easier to use based on preset commants and options.",
-  "version": "0.1.1",
+  "description": "Plugin for base-methods that simplifies mapping argv arguments to tasks, commands, and options",
+  "version": "0.1.2",
   "homepage": "https://github.com/jonschlinkert/base-argv",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "jonschlinkert/base-argv",
@@ -11,8 +11,7 @@
   "license": "MIT",
   "files": [
     "index.js",
-    "lib/",
-    "utils.js"
+    "lib/"
   ],
   "main": "index.js",
   "engines": {
@@ -22,16 +21,17 @@
     "test": "mocha"
   },
   "dependencies": {
+    "arr-union": "^3.0.0",
     "arrayify-compact": "^0.2.0",
     "expand-args": "^0.3.0",
-    "expand-object": "^0.4.0",
     "extend-shallow": "^2.0.1",
     "isobject": "^2.0.0",
-    "kind-of": "^3.0.2",
-    "lazy-cache": "^0.2.4",
-    "set-value": "^0.3.1"
+    "lazy-cache": "^0.2.4"
   },
   "devDependencies": {
+    "base-config": "^0.3.0",
+    "base-methods": "^0.5.0",
+    "base-tasks": "^0.1.2",
     "minimist": "^1.2.0",
     "mocha": "*"
   },
@@ -41,7 +41,13 @@
   ],
   "verb": {
     "related": {
-      "list": []
+      "list": [
+        "base-methods",
+        "base-plugins",
+        "base-config",
+        "base-cli",
+        "base-options"
+      ]
     }
   }
 }
