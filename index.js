@@ -13,15 +13,28 @@ var utils = require('./lib/utils');
 
 module.exports = function(options) {
   return function(app) {
-    app.argv = processArgs(app, options);
+    var opts = utils.extend({}, options);
+    opts.commands = app.commands || [];
+
+    // add `keys` from base-config plugin (map-config)
+    if (app.config && Array.isArray(app.config.keys)) {
+      opts.commands = utils.union(opts.commands, app.config.keys);
+    }
+    // add `keys` from base-cli plugin (map-config)
+    if (app.cli && Array.isArray(app.cli.keys)) {
+      opts.commands = utils.union(opts.commands, app.cli.keys);
+    }
+
+    opts.tasks = app.tasks;
+    app.define('argv', processArgv(opts));
   };
 };
 
-function processArgs(app, options) {
-  options = options || {};
-  var plural = options.plural;
-  var commands = app.commands;
-  var tasks = app.tasks;
+function processArgv(options) {
+  var opts = utils.extend({}, options);
+  var commands = opts.commands;
+  var tasks = opts.tasks;
+  var prop = opts.prop;
 
   return function(argv) {
     argv = !utils.isObject(argv)
@@ -31,12 +44,18 @@ function processArgs(app, options) {
     var res = {};
     res.argv = utils.extend({}, argv);
     res._ = [];
+    res.tasks = [];
     res.commands = {};
     res.options = {};
-    res[plural] = [];
+    if (prop) res[prop] = [];
 
-    var appKeys = Object.keys(app[plural]);
-    var taskKeys = Object.keys(tasks);
+    var appKeys = (prop && opts.hasOwnProperty(prop))
+      ? Object.keys(opts[prop])
+      : [];
+
+    var taskKeys = !Array.isArray(tasks)
+      ? (tasks ? Object.keys(tasks) : [])
+      : tasks;
 
     var arr = argv._;
     var len = arr.length, i = -1;
@@ -44,12 +63,20 @@ function processArgs(app, options) {
     while (++i < len) {
       var ele = arr[i];
 
-      if (isApp(appKeys, ele) || isTask(taskKeys, ele)) {
-        var obj = toTasks(ele, app, plural);
-        res[plural] = res[plural].concat(obj);
+      if (/,/.test(ele) && !/[.|:]/.test(ele)) {
+        res.tasks = utils.union(res.tasks, ele.split(','));
         continue;
       }
 
+      if (isApp(appKeys, ele) || isTask(taskKeys, ele)) {
+        if (prop) {
+          var obj = toTasks(ele, opts, prop);
+          res[prop] = res[prop].concat(obj);
+        } else {
+          res.tasks = utils.union(res.tasks, ele.split(','));
+        }
+        continue;
+      }
       res._.push(ele);
     }
 
@@ -58,8 +85,8 @@ function processArgs(app, options) {
         continue;
       }
 
-      var arr = utils.arrayify(argv[key]);
-      var expanded = utils.expandArgs(arr)[0];
+      var argvArr = utils.arrayify(argv[key]);
+      var expanded = utils.expandArgs(argvArr)[0];
 
       if (isCommand(commands, key)) {
         res.commands[key] = expanded;
@@ -71,7 +98,7 @@ function processArgs(app, options) {
   };
 }
 
-module.exports.process = processArgs;
+module.exports.processArgv = processArgv;
 
 /**
  * Utils
@@ -90,6 +117,7 @@ function isTask(tasks, key) {
 }
 
 function is(arr, key, ch) {
+  if (!arr) return false;
   if (arr.indexOf(key) > -1) {
     return true;
   }
