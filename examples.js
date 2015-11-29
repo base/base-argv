@@ -3,7 +3,8 @@
 var minimist = require('minimist');
 var expand = require('./');
 
-var app = {
+var options = {
+  prop: 'generators',
   commands: ['set', 'get', 'del', 'store', 'init', 'option', 'data', 'list'],
   tasks: {
     a: {},
@@ -71,7 +72,7 @@ var argv = minimist([
   '--do=it'
 ]);
 
-var create = expand.process(app, {plural: 'generators'});
+var create = expand.processArgv(options);
 var args = create(argv);
 
 console.log(args)
