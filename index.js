@@ -34,7 +34,7 @@ function processArgv(options) {
   var opts = utils.extend({}, options);
   var commands = opts.commands;
   var tasks = opts.tasks;
-  var prop = opts.prop;
+  var prop = opts.prop || 'generators';
 
   return function(argv) {
     argv = !utils.isObject(argv)
