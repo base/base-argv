@@ -7,60 +7,50 @@
 
 'use strict';
 
-var toTasks = require('./to-tasks');
-var expandArgs = require('expand-args');
-var expand = require('expand-object');
-var union = require('union-value');
-var omit = require('object.omit');
-var pick = require('object.pick');
+var minimist = require('minimist');
+var toTasks = require('./lib/to-tasks');
+var utils = require('./lib/utils');
 
-module.exports = function(argv) {
+module.exports = function(options) {
   return function(app) {
-
-    app.define('argv', processArgs(argv));
-
-    this.argv.commands = function commands(argv) {
-      argv._ = argv._ || [];
-      var commands = {};
-      argv._.forEach(function(key) {
-        commands[key] = true;
-      });
-      return commands;
-    };
+    app.argv = processArgs(app, options);
   };
 };
 
-function processArgs(argv) {
-  return function(config, options) {
-    options = options || {};
-    var commands = config.commands;
-    var plural = options.plural;
-    var tasks = config.tasks;
+function processArgs(app, options) {
+  options = options || {};
+  var plural = options.plural;
+  var commands = app.commands;
+  var tasks = app.tasks;
+
+  return function(argv) {
+    argv = !utils.isObject(argv)
+      ? minimist(utils.arrayify(argv))
+      : argv;
 
     var res = {};
-    res.argv = argv;
+    res.argv = utils.extend({}, argv);
     res._ = [];
     res.commands = {};
     res.options = {};
-    // res[plural] = {base: []};
     res[plural] = [];
 
-    var appKeys = Object.keys(config[plural]);
+    var appKeys = Object.keys(app[plural]);
     var taskKeys = Object.keys(tasks);
 
     var arr = argv._;
     var len = arr.length, i = -1;
 
     while (++i < len) {
-      var key = arr[i];
+      var ele = arr[i];
 
-      if (isApp(appKeys, key) || isTask(taskKeys, key)) {
-        var obj = toTasks(key, config, plural);
+      if (isApp(appKeys, ele) || isTask(taskKeys, ele)) {
+        var obj = toTasks(ele, app, plural);
         res[plural] = res[plural].concat(obj);
         continue;
       }
 
-      res._.push(key);
+      res._.push(ele);
     }
 
     for (var key in argv) {
@@ -68,34 +58,24 @@ function processArgs(argv) {
         continue;
       }
 
+      var arr = utils.arrayify(argv[key]);
+      var expanded = utils.expandArgs(arr)[0];
+
       if (isCommand(commands, key)) {
-        var val = argv[key];
-        console.log(expandArgs([val]))
-        if (typeof val === 'boolean' || !/\W/.test(String(val))) {
-          res.commands[key] = val;
-        } else {
-          res.commands[key] = expand(val);
-        }
+        res.commands[key] = expanded;
       } else {
-        var val = argv[key];
-        if (typeof val === 'boolean' || !/\W/.test(String(val))) {
-          res.options[key] = val;
-        } else {
-          res.options[key] = expand(val);
-        }
+        res.options[key] = expanded;
       }
     }
     return res;
   };
 }
 
+module.exports.process = processArgs;
+
 /**
  * Utils
  */
-
-function contains(arr, key) {
-  return arr.indexOf(key) > -1;
-}
 
 function isApp(apps, key) {
   return is(apps, key);
@@ -110,58 +90,9 @@ function isTask(tasks, key) {
 }
 
 function is(arr, key, ch) {
-  if(arr.indexOf(key) > -1) {
+  if (arr.indexOf(key) > -1) {
     return true;
   }
   var seg = key.split(/\W/).shift();
   return arr.indexOf(seg) > -1;
 }
-
-function toTasks(obj, str) {
-
-}
-
-var config = {
-  commands: ['set', 'get', 'del', 'store', 'init', 'option', 'data', 'list'],
-  tasks: {
-    a: {},
-    b: {},
-    c: {},
-  },
-  generators: {
-    node: {
-      tasks: ['default', 'init']
-    },
-    mocha: {
-      tasks: ['default', 'init']
-    },
-    gulp: {
-      tasks: ['default', 'gulpfile', 'plugin']
-    },
-    foo: {
-      tasks: {
-        a: {},
-        b: {},
-        c: {},
-      },
-      generators: {
-        node: {
-          tasks: ['default', 'init']
-        },
-        mocha: {
-          tasks: ['default', 'init']
-        },
-        gulp: {
-          tasks: ['default', 'gulpfile', 'plugin']
-        }
-      }
-    }
-  }
-};
-
-var argv = require('minimist')(['node:init', 'a,b,c', 'foo.node:init', '--set=name:Jon', '--get=one', 'blah', '--do=it']);
-var args = processArgs(argv)(config, {
-  plural: 'generators'
-});
-
-console.log(args)

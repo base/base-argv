@@ -9,10 +9,6 @@ describe('base-argv', function() {
     assert.equal(typeof baseArgv, 'function');
   });
 
-  it('should return an object', function() {
-    assert.equal(typeof baseArgv, 'object');
-  });
-
   it('should throw an error when invalid args are passed', function(cb) {
     try {
       baseArgv();
