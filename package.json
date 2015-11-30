@@ -26,13 +26,13 @@
     "expand-args": "^0.3.0",
     "extend-shallow": "^2.0.1",
     "isobject": "^2.0.0",
-    "lazy-cache": "^0.2.4"
+    "lazy-cache": "^0.2.4",
+    "minimist": "^1.2.0"
   },
   "devDependencies": {
     "base-config": "^0.3.0",
     "base-methods": "^0.5.0",
     "base-tasks": "^0.1.2",
-    "minimist": "^1.2.0",
     "mocha": "*"
   },
   "keywords": [
