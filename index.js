@@ -14,6 +14,10 @@ var utils = require('./lib/utils');
 module.exports = function(options) {
   return function(app) {
     var opts = utils.extend({}, options);
+    if (opts.prop) {
+      opts[opts.prop] = app[opts.prop];
+    }
+
     opts.commands = app.commands || [];
 
     // add `keys` from base-config plugin (map-config)
@@ -34,7 +38,7 @@ function processArgv(options) {
   var opts = utils.extend({}, options);
   var commands = opts.commands;
   var tasks = opts.tasks;
-  var prop = opts.prop || 'generators';
+  var prop = opts.prop;
 
   return function(argv) {
     argv = !utils.isObject(argv)
