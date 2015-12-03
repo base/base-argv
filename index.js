@@ -46,7 +46,7 @@ function processArgv(options) {
       : argv;
 
     var res = {};
-    res.argv = utils.extend({}, argv);
+    res.orig = utils.extend({}, argv);
     res._ = [];
     res.tasks = [];
     res.commands = {};

@@ -15,17 +15,17 @@ describe('base-argv', function() {
   });
 });
 
-describe('argv', function() {
-  it('should expose an argv object', function() {
+describe('orig', function() {
+  it('should expose an orig object', function() {
     var res = plugin.processArgv()(['--set=a:b', 'foo', 'bar']);
-    assert(res.argv);
-    assert.equal(typeof res.argv, 'object');
+    assert(res.orig);
+    assert.equal(typeof res.orig, 'object');
   });
 
-  it('should put the args parsed by minimist on argv', function() {
+  it('should put the args parsed by minimist on orig', function() {
     var args = ['--set=a:b', 'foo', 'bar'];
     var res = plugin.processArgv()(args);
-    assert.deepEqual(res.argv, minimist(args));
+    assert.deepEqual(res.orig, minimist(args));
   });
 });
 
@@ -285,14 +285,14 @@ describe('base-methods', function() {
 
   it('should work as a base-methods plugin', function() {
     var res = base.argv(['--set=a:b', 'foo', 'bar']);
-    assert(res.argv);
-    assert.equal(typeof res.argv, 'object');
+    assert(res.orig);
+    assert.equal(typeof res.orig, 'object');
   });
 
   it('should put the args parsed by minimist on argv', function() {
     var args = ['--set=a:b', 'foo', 'bar'];
     var res = base.argv(args);
-    assert.deepEqual(res.argv, minimist(args));
+    assert.deepEqual(res.orig, minimist(args));
   });
 
   it('should automatically detect commands from base-config and base-cli', function() {
