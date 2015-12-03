@@ -23,7 +23,6 @@
   "dependencies": {
     "arr-union": "^3.0.0",
     "arrayify-compact": "^0.2.0",
-    "base-questions": "^0.1.1",
     "expand-args": "^0.3.0",
     "extend-shallow": "^2.0.1",
     "isobject": "^2.0.0",
@@ -31,8 +30,8 @@
     "minimist": "^1.2.0"
   },
   "devDependencies": {
-    "base-config": "^0.3.0",
-    "base-methods": "^0.5.0",
+    "base-config": "^0.3.2",
+    "base-methods": "^0.6.1",
     "base-tasks": "^0.1.2",
     "mocha": "*"
   },
