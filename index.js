@@ -30,7 +30,7 @@ module.exports = function(options) {
     }
 
     opts.tasks = app.tasks;
-    app.define('argv', processArgv(opts));
+    app.define('processArgv', processArgv(opts));
   };
 };
 
