@@ -24,8 +24,6 @@ module.exports = function(options) {
 function processArgv(argv, options) {
   var opts = options || {};
   var commands = opts.commands;
-  var tasks = opts.tasks;
-  var prop = opts.prop;
 
   if (Array.isArray(argv)) {
     argv = minimist(utils.arrayify(argv));
@@ -39,13 +37,13 @@ function processArgv(argv, options) {
     options: {}
   };
 
-  if (typeof prop === 'string') {
-    res[prop] = [];
+  if (typeof opts.prop === 'string') {
+    res[opts.prop] = [];
   }
 
   for (var key in argv) {
     if (key === '_') {
-      res = reduceArray(argv[key], res, prop, opts);
+      res = reduceArray(argv[key], res, opts);
     }
     res = reduceOptions(argv[key], key, res, commands);
   }
@@ -56,18 +54,21 @@ function processArgv(argv, options) {
  * Utils
  */
 
-function reduceArray(args, res, prop, opts) {
+function reduceArray(args, res, opts) {
+  var prop = opts.prop;
+  var apps = prop ? opts[prop] : null;
   var tasks = opts.tasks;
-  var apps = opts[prop];
+
 
   var len = args.length, i = -1;
   while (++i < len) {
     var ele = args[i];
 
-    if (/,/.test(ele) && !/[.|:]/.test(ele)) {
+    if (/,/.test(ele) && !/[.|:=]/.test(ele)) {
       res.tasks = utils.union(res.tasks, ele.split(','));
       continue;
     }
+
     if (isApp(apps, ele) || isTask(tasks, ele)) {
       if (prop) {
         var obj = toTasks(ele, opts, prop);
@@ -75,9 +76,9 @@ function reduceArray(args, res, prop, opts) {
       } else {
         res.tasks = utils.union(res.tasks, ele.split(','));
       }
-      continue;
+    } else {
+      res._.push(ele);
     }
-    res._.push(ele);
   }
   return res;
 }
@@ -93,7 +94,8 @@ function reduceOptions(val, key, res, commands) {
 }
 
 function isApp(apps, key) {
-  return is(apps, key);
+  var res = is(apps, key);
+  return res;
 }
 
 function isCommand(commands, key) {
@@ -104,17 +106,34 @@ function isTask(tasks, key) {
   return is(tasks, key);
 }
 
-function is(arr, key, ch) {
-  console.log(arr)
-  if (!arr) return false;
-  if (!Array.isArray(arr)) {
-    return true;
+function is(val, key, ch) {
+  if (!val) return false;
+
+  if (typeof key !== 'string') {
+    throw new TypeError('expected key to be a string');
   }
-  if (arr.indexOf(key) > -1) {
-    return true;
+
+  var segs = key.split(/\W/);
+  var prop = segs[0];
+
+  if (utils.isObject(val)) {
+    if (val.hasOwnProperty(key)) {
+      return true;
+    }
+    if (val.hasOwnProperty(prop)) {
+      return true;
+    }
   }
-  var seg = key.split(/\W/).shift();
-  return arr.indexOf(seg) > -1;
+
+  if (Array.isArray(val)) {
+    if (val.indexOf(key) !== -1) {
+      return true;
+    }
+    if (val.indexOf(prop) !== -1) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /**
