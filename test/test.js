@@ -3,10 +3,10 @@
 require('mocha');
 var minimist = require('minimist');
 var Base = require('base-methods');
-var config = require('base-config');
+var cli = require('base-cli');
 var tasks = require('base-tasks');
 var assert = require('assert');
-var plugin = require('./');
+var plugin = require('..');
 var base;
 
 describe('base-argv', function() {
@@ -17,28 +17,28 @@ describe('base-argv', function() {
 
 describe('orig', function() {
   it('should expose an orig object', function() {
-    var res = plugin.processArgv()(['--set=a:b', 'foo', 'bar']);
+    var res = plugin.processArgv(['--set=a:b', 'foo', 'bar']);
     assert(res.orig);
     assert.equal(typeof res.orig, 'object');
   });
 
   it('should put the args parsed by minimist on orig', function() {
     var args = ['--set=a:b', 'foo', 'bar'];
-    var res = plugin.processArgv()(args);
+    var res = plugin.processArgv(args);
     assert.deepEqual(res.orig, minimist(args));
   });
 });
 
 describe('options', function() {
   it('should sift out options from args', function() {
-    var res = plugin.processArgv()(['--set=a:b', 'foo', 'bar']);
+    var res = plugin.processArgv(['--set=a:b', 'foo', 'bar']);
     assert(res.options);
     assert(res.options.set);
     assert.equal(res.options.set.a, 'b');
   });
 
   it('should handle multiple options', function() {
-    var res = plugin.processArgv()(['--set=a:b', '--get=c:d', 'foo', 'bar']);
+    var res = plugin.processArgv(['--set=a:b', '--get=c:d', 'foo', 'bar']);
     assert(res.options);
     assert(res.options.set);
     assert.equal(res.options.set.a, 'b');
@@ -47,7 +47,7 @@ describe('options', function() {
   });
 
   it('should put non-options on the _ array', function() {
-    var res = plugin.processArgv()(['--set=a:b', '--get=c:d', 'foo', 'bar']);
+    var res = plugin.processArgv(['--set=a:b', '--get=c:d', 'foo', 'bar']);
     assert(res._);
     assert.deepEqual(res._, ['foo', 'bar']);
   });
@@ -55,50 +55,56 @@ describe('options', function() {
 
 describe('tasks', function() {
   it('should expose a tasks array', function() {
-    var res = plugin.processArgv()(['foo']);
+    var res = plugin.processArgv(['foo']);
     assert(res.tasks);
     assert(Array.isArray(res.tasks));
   });
 
   it('should sift out tasks when passed as an array', function() {
     var opts = {tasks: ['foo', 'bar']};
-    var res = plugin.processArgv(opts)(['--set=a:b', 'foo', 'bar']);
+    var res = plugin.processArgv(['--set=a:b', 'foo', 'bar'], opts);
     assert.deepEqual(res.tasks, ['foo', 'bar']);
   });
 
   it('should sift out tasks when passed as an object', function() {
     var opts = {tasks: {foo: {}, bar: {}}};
-    var res = plugin.processArgv(opts)(['--set=a:b', 'foo', 'bar']);
+    var res = plugin.processArgv(['--set=a:b', 'foo', 'bar'], opts);
     assert.deepEqual(res.tasks, ['foo', 'bar']);
   });
 
   it('should split comma-separated tasks into an array', function() {
     var opts = {tasks: {foo: {}, bar: {}}};
-    var res = plugin.processArgv(opts)(['foo,bar']);
+    var res = plugin.processArgv(['foo,bar'], opts);
     assert.deepEqual(res.tasks, ['foo', 'bar']);
   });
 
   it('should split comma-separated tasks followed by a string into an array', function() {
     var opts = {};
-    var res = plugin.processArgv(opts)(['foo', 'a,b,c']);
+    var res = plugin.processArgv(['foo', 'a,b,c'], opts);
+    assert.deepEqual(res.tasks, ['a', 'b', 'c']);
+  });
+
+  it('should split comma-separated tasks preceded by an option into an array', function() {
+    var opts = {};
+    var res = plugin.processArgv(['foo:bar', 'a,b,c'], opts);
     assert.deepEqual(res.tasks, ['a', 'b', 'c']);
   });
 
   it('should split comma-separated tasks followed by an option into an array', function() {
     var opts = {};
-    var res = plugin.processArgv(opts)(['foo:bar', 'a,b,c']);
+    var res = plugin.processArgv(['a,b,c', 'foo:bar'], opts);
     assert.deepEqual(res.tasks, ['a', 'b', 'c']);
   });
 });
 
 describe('prop', function() {
   it('should expose an object for the given `prop`', function() {
-    var res = plugin.processArgv({prop: 'generators'})(['foo']);
+    var res = plugin.processArgv(['foo'], {prop: 'generators'});
     assert(res.generators);
     assert(Array.isArray(res.generators));
   });
 
-  it('should create "default" tasks for `prop` passed as single args', function() {
+  it('should create "default" tasks for `prop` passed as individual args', function() {
     var config = {
       prop: 'generators',
       generators: {
@@ -107,7 +113,7 @@ describe('prop', function() {
       }
     };
 
-    var res = plugin.processArgv(config)(['foo', 'bar']);
+    var res = plugin.processArgv(['foo', 'bar'], config);
     assert(res.generators);
     assert.deepEqual(res.generators, [
      {foo: ['default']},
@@ -128,7 +134,7 @@ describe('prop', function() {
       }
     };
 
-    var res = plugin.processArgv(config)(['foo', 'bar']);
+    var res = plugin.processArgv(['foo', 'bar'], config);
     assert(res.generators);
     assert.deepEqual(res.generators, [
      {foo: ['default']},
@@ -136,7 +142,7 @@ describe('prop', function() {
     ]);
   });
 
-  it('should create a prop with the default task when defined', function() {
+  it('should create a property with the default task when defined', function() {
     var config = {
       prop: 'generators',
       generators: {
@@ -149,7 +155,7 @@ describe('prop', function() {
       }
     };
 
-    var res = plugin.processArgv(config)(['foo', 'bar']);
+    var res = plugin.processArgv(['foo', 'bar'], config);
     assert(res.generators);
     assert.deepEqual(res.generators, [
      {foo: ['default']},
@@ -157,7 +163,7 @@ describe('prop', function() {
     ]);
   });
 
-  it('should create a prop with other tasks when default is not defined', function() {
+  it('should create a property with other tasks when default is not defined', function() {
     var config = {
       prop: 'generators',
       generators: {
@@ -170,7 +176,7 @@ describe('prop', function() {
       }
     };
 
-    var res = plugin.processArgv(config)(['foo', 'bar']);
+    var res = plugin.processArgv(['foo', 'bar'], config);
     assert(res.generators);
     assert.deepEqual(res.generators, [
      {foo: ['default']},
@@ -178,7 +184,7 @@ describe('prop', function() {
     ]);
   });
 
-  it('should split colon separated generators into generators and tasks', function() {
+  it('should split colon separated args into generators and tasks', function() {
     var config = {
       prop: 'generators',
       generators: {
@@ -191,7 +197,7 @@ describe('prop', function() {
       }
     };
 
-    var res = plugin.processArgv(config)(['foo:one', 'bar:c']);
+    var res = plugin.processArgv(['foo:one', 'bar:c'], config);
     assert(res.generators);
     assert.deepEqual(res.generators, [
      {foo: ['one']},
@@ -212,7 +218,7 @@ describe('prop', function() {
       }
     };
 
-    var res = plugin.processArgv(config)(['foo:one,two', 'bar:a,c']);
+    var res = plugin.processArgv(['foo:one,two', 'bar:a,c'], config);
     assert(res.generators);
     assert.deepEqual(res.generators, [
      {foo: ['one', 'two']},
@@ -220,7 +226,7 @@ describe('prop', function() {
     ]);
   });
 
-  it('should not expand dot-separated that match generators', function() {
+  it('should not expand dot-separated values that match generators', function() {
     var config = {
       prop: 'generators',
       generators: {
@@ -233,7 +239,7 @@ describe('prop', function() {
       }
     };
 
-    var res = plugin.processArgv(config)(['foo.xxx:one,two', 'bar.zzz:a,c']);
+    var res = plugin.processArgv(['foo.xxx:one,two', 'bar.zzz:a,c'], config);
     assert(res.generators);
     assert.deepEqual(res.generators, [
      {'foo.xxx': ['one', 'two']},
@@ -245,7 +251,7 @@ describe('prop', function() {
 describe('commands', function() {
   it('should sift out commands from args', function() {
     var opts = {commands: ['set', 'get']};
-    var res = plugin.processArgv(opts)(['--set=a:b', 'foo', 'bar']);
+    var res = plugin.processArgv(['--set=a:b', 'foo', 'bar'], opts);
     assert(res.commands);
     assert(res.commands.set);
     assert.equal(res.commands.set.a, 'b');
@@ -253,7 +259,7 @@ describe('commands', function() {
 
   it('should sift out multiple commands from args', function() {
     var opts = {commands: ['set', 'get']};
-    var res = plugin.processArgv(opts)(['--set=a:b', '--get=c:d', 'foo', 'bar']);
+    var res = plugin.processArgv(['--set=a:b', '--get=c:d', 'foo', 'bar'], opts);
 
     assert(res.commands.set);
     assert.equal(res.commands.set.a, 'b');
@@ -264,7 +270,7 @@ describe('commands', function() {
 
   it('should sift out commands from options', function() {
     var opts = {commands: ['set', 'get']};
-    var res = plugin.processArgv(opts)(['--set=a:b', '--foo=one:two', 'bar']);
+    var res = plugin.processArgv(['--set=a:b', '--foo=one:two', 'bar'], opts);
 
     assert(res.commands.set);
     assert.equal(res.commands.set.a, 'b');
@@ -279,8 +285,8 @@ describe('base-methods', function() {
   beforeEach(function() {
     base = new Base();
     base.use(tasks());
-    base.use(config());
     base.use(plugin());
+    base.use(cli());
   });
 
   it('should work as a base-methods plugin', function() {
@@ -295,7 +301,7 @@ describe('base-methods', function() {
     assert.deepEqual(res.orig, minimist(args));
   });
 
-  it('should automatically detect commands from base-config and base-cli', function() {
+  it('should automatically detect commands from base-cli', function() {
     var args = ['--set=a:b', 'foo', 'bar'];
     var res = base.argv(args);
     assert.deepEqual(res.commands, {set: {a: 'b'}});
