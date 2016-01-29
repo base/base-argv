@@ -7,137 +7,122 @@
 
 'use strict';
 
-var minimist = require('minimist');
-var toTasks = require('./lib/to-tasks');
-var utils = require('./lib/utils');
-var toKeys = require('./lib/keys');
+var utils = require('./utils');
 
-module.exports = function(options) {
-  return function(app) {
-    app.define('argv', function(argv) {
-      var opts = toKeys(app, options);
-      return processArgv(argv, opts);
+module.exports = function(config) {
+  return function() {
+    if (this.isRegistered('base-argv')) return;
+
+    this.define('argv', function(argv, options) {
+      var orig = utils.extend({}, argv);
+      var opts = utils.extend({}, config, this.options, options, argv);
+      var res = processArgv(this, argv, opts);
+      if (res.expand === 'false' || opts.expand === false) {
+        delete res.expand;
+        return res;
+      }
+      res.orig = orig;
+      return res;
     });
   };
 };
 
-function processArgv(argv, options) {
-  var opts = options || {};
-  var commands = opts.commands;
+/**
+ * Expand command line arguments into the format we need to pass
+ * to `app.cli.process()`.
+ *
+ * Add a `default` task is added to the `tasks` array if no tasks
+ * were defined, and only whitelisted flags are passed.
+ *
+ * @param {Object} `app` Application instance
+ * @param {Object} `argv` argv object, parsed by minimist
+ * @param {Array} `options.first` The keys to pass to `app.cli.process()` first.
+ * @param {Array} `options.last` The keys to pass to `app.cli.process()` last.
+ * @param {Array} `options.keys` Flags to whitelist
+ * @return {Object} Returns the `argv` object with sorted keys.
+ */
+
+function processArgv(app, argv, options) {
+  var opts = utils.extend({}, options);
 
   if (Array.isArray(argv)) {
-    argv = minimist(utils.arrayify(argv));
+    argv = utils.minimist(argv, options);
   }
 
-  var res = {
-    orig: utils.extend({}, argv),
-    _: [],
-    tasks: [],
-    commands: {},
-    options: {}
-  };
-
-  if (typeof opts.prop === 'string') {
-    res[opts.prop] = [];
+  if (opts.expand === false || argv.expand === 'false') {
+    return argv;
   }
 
-  for (var key in argv) {
-    if (key === '_') {
-      res = reduceArray(argv[key], res, opts);
-    }
-    res = reduceOptions(argv[key], key, res, commands);
-  }
-  return res;
-};
+  // shallow clone parsed args from minimist
+  var parsed = utils.extend({}, argv);
 
-/**
- * Utils
- */
+  // move the splat array
+  var tasks = argv._;
+  delete argv._;
 
-function reduceArray(args, res, opts) {
-  var prop = opts.prop;
-  var apps = prop ? opts[prop] : null;
-  var tasks = opts.tasks;
+  var keys = Object.keys(argv);
+  var len = keys.length;
 
+  // expand args with "expand-args"
+  argv = utils.expandArgs(argv);
 
-  var len = args.length, i = -1;
-  while (++i < len) {
-    var ele = args[i];
-
-    if (/,/.test(ele) && !/[.|:=]/.test(ele)) {
-      res.tasks = utils.union(res.tasks, ele.split(','));
-      continue;
-    }
-
-    if (isApp(apps, ele) || isTask(tasks, ele)) {
-      if (prop) {
-        var obj = toTasks(ele, opts, prop);
-        res[prop] = res[prop].concat(obj);
-      } else {
-        res.tasks = utils.union(res.tasks, ele.split(','));
-      }
-    } else {
-      res._.push(ele);
-    }
-  }
-  return res;
-}
-
-function reduceOptions(val, key, res, commands) {
-  var args = utils.expandArgs(utils.arrayify(val))[0];
-  if (isCommand(commands, key)) {
-    res.commands[key] = args;
+  if (Array.isArray(argv.tasks)) {
+    utils.union(argv.tasks, tasks);
   } else {
-    res.options[key] = args;
+    argv.tasks = tasks;
   }
+
+  if (argv.file) len--;
+  if (argv.cwd) len--;
+  if ((argv.file || argv.cwd || len === 0) && argv.tasks.length === 0) {
+    argv.tasks = ['default'];
+  }
+
+  if (argv.tasks.length === 0 && len > 0) {
+    delete argv.tasks;
+  }
+
+  var res = sortArgs(app, argv, options);
+  res.minimist = parsed;
   return res;
-}
-
-function isApp(apps, key) {
-  var res = is(apps, key);
-  return res;
-}
-
-function isCommand(commands, key) {
-  return is(commands, key);
-}
-
-function isTask(tasks, key) {
-  return is(tasks, key);
-}
-
-function is(val, key, ch) {
-  if (!val) return false;
-
-  if (typeof key !== 'string') {
-    throw new TypeError('expected key to be a string');
-  }
-
-  var segs = key.split(/\W/);
-  var prop = segs[0];
-
-  if (utils.isObject(val)) {
-    if (val.hasOwnProperty(key)) {
-      return true;
-    }
-    if (val.hasOwnProperty(prop)) {
-      return true;
-    }
-  }
-
-  if (Array.isArray(val)) {
-    if (val.indexOf(key) !== -1) {
-      return true;
-    }
-    if (val.indexOf(prop) !== -1) {
-      return true;
-    }
-  }
-  return false;
 }
 
 /**
- * Expose `processArgv` method
+ * Sort arguments so that `app.cli.process` executes commands
+ * in the order specified.
+ *
+ * @param {Object} `app` Application instance
+ * @param {Object} `argv` The expanded argv object
+ * @param {Object} `options`
+ * @param {Array} `options.first` The keys to run first.
+ * @param {Array} `options.last` The keys to run last.
+ * @return {Object} Returns the `argv` object with sorted keys.
  */
 
-module.exports.processArgv = processArgv;
+function sortArgs(app, argv, options) {
+  options = options || [];
+
+  var first = options.first || [];
+  var last = options.last || [];
+  var cliKeys = [];
+
+  if (app.cli && app.cli.keys) {
+    cliKeys = app.cli.keys;
+  }
+
+  var keys = utils.union(first, cliKeys, Object.keys(argv));
+  keys = utils.diff(keys, last);
+  keys = utils.union(keys, last);
+
+  var len = keys.length;
+  var idx = -1;
+  var res = {};
+
+  while (++idx < len) {
+    var key = keys[idx];
+    if (argv.hasOwnProperty(key)) {
+      res[key] = argv[key];
+    }
+  }
+  return res;
+}

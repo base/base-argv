@@ -11,7 +11,8 @@
   "license": "MIT",
   "files": [
     "index.js",
-    "lib/"
+    "lib/",
+    "utils.js"
   ],
   "main": "index.js",
   "engines": {
@@ -21,20 +22,17 @@
     "test": "mocha"
   },
   "dependencies": {
-    "arr-union": "^3.0.0",
-    "arrayify-compact": "^0.2.0",
-    "expand-args": "^0.3.1",
+    "arr-diff": "^2.0.0",
+    "array-union": "^1.0.1",
+    "expand-args": "^0.3.3",
     "extend-shallow": "^2.0.1",
-    "inflection": "^1.8.0",
-    "isobject": "^2.0.0",
-    "lazy-cache": "^1.0.3",
-    "minimist": "^1.2.0",
-    "mixin-deep": "^1.1.3"
+    "lazy-cache": "^1.0.3"
   },
   "devDependencies": {
-    "base-cli": "^0.4.0",
-    "base-methods": "^0.6.1",
-    "base-tasks": "^0.1.2",
+    "base": "^0.6.7",
+    "base-cli": "^0.4.1",
+    "base-tasks": "^0.3.0",
+    "minimist": "^1.2.0",
     "mocha": "*"
   },
   "keywords": [
