@@ -1,6 +1,6 @@
 {
   "name": "base-argv",
-  "description": "Plugin for base-methods that simplifies mapping argv arguments to tasks, commands, and options",
+  "description": "Plugin that post-processes the argv object from simplify how args are mapped to options, tasks and generators.",
   "version": "0.3.0",
   "homepage": "https://github.com/jonschlinkert/base-argv",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
@@ -24,6 +24,7 @@
   "dependencies": {
     "arr-diff": "^2.0.0",
     "array-union": "^1.0.1",
+    "define-property": "^0.2.5",
     "expand-args": "^0.3.3",
     "extend-shallow": "^2.0.1",
     "lazy-cache": "^1.0.3"
@@ -32,6 +33,7 @@
     "base": "^0.6.7",
     "base-cli": "^0.4.1",
     "base-tasks": "^0.3.0",
+    "gulp-format-md": "^0.1.5",
     "minimist": "^1.2.0",
     "mocha": "*"
   },
@@ -52,12 +54,17 @@
   "verb": {
     "related": {
       "list": [
-        "base-methods",
-        "base-plugins",
-        "base-config",
         "base-cli",
-        "base-options"
+        "base-config",
+        "base-methods",
+        "base-options",
+        "base-plugins"
       ]
-    }
+    },
+    "toc": false,
+    "layout": "default",
+    "plugins": [
+      "gulp-format-md"
+    ]
   }
 }
