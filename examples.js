@@ -1,78 +1,30 @@
 'use strict';
 
-var minimist = require('minimist');
-var expand = require('./');
+var Base = require('base');
+var tasks = require('base-tasks');
+var cli = require('base-cli');
+var argv = require('./');
+var app = new Base();
 
-var options = {
-  prop: 'generators',
-  commands: ['set', 'get', 'del', 'store', 'init', 'option', 'data', 'list'],
-  tasks: {
-    a: {},
-    b: {},
-    c: {},
-  },
-  generators: {
-    node: {
-      tasks: {
-        'default': {},
-        init: {}
-      }
-    },
-    mocha: {
-      tasks: {
-        'default': {},
-        init: {}
-      }
-    },
-    gulp: {
-      tasks: {
-        'default': {},
-        gulpfile: {},
-        plugin: {}
-      }
-    },
-    foo: {
-      tasks: {
-        a: {},
-        b: {},
-        c: {},
-      },
-      generators: {
-        node: {
-          tasks: {
-            'default': {},
-            init: {}
-          }
-        },
-        mocha: {
-          tasks: {
-            'default': {},
-            init: {}
-          }
-        },
-        gulp: {
-          tasks: {
-            'default': {},
-            gulpfile: {},
-            plugin: {}
-          }
-        }
-      }
-    }
-  }
-};
+// register plugins
+app.use(cli());
+app.use(tasks());
+app.use(argv());
 
-var argv = minimist([
-  'node:init',
-  'a,b,c',
-  'foo.node:init',
-  '--set=name:Jon',
-  '--get=one',
-  'blah',
-  '--do=it'
-]);
+app.task('foo', function(cb) {
+  console.log('task > default');
+  cb();
+});
 
-var create = expand.processArgv(options);
-var args = create(argv);
+// parse argv
+var args = app.argv(['--a=b:c', '--a=d:e', '--f g']);
+console.log(args)
 
+var args = app.argv(['--a:b:c', '--a:d:e', '--f g']);
+console.log(args)
+
+var args = app.argv(['--a:b=c', '--a d:e', '--f g']);
+console.log(args)
+
+var args = app.argv(['foo', 'bar', '--set=a:b']);
 console.log(args)
