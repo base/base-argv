@@ -26,6 +26,7 @@ require = utils;
 
 require('arr-diff', 'diff');
 require('array-union', 'union');
+require('define-property', 'define');
 require('expand-args');
 require('extend-shallow', 'extend');
 require('minimist');

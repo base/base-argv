@@ -14,14 +14,15 @@ module.exports = function(config) {
     if (this.isRegistered('base-argv')) return;
 
     this.define('argv', function(argv, options) {
-      var orig = utils.extend({}, argv);
+      var orig = Array.isArray(argv) ? argv.slice() : utils.extend({}, argv);
       var opts = utils.extend({}, config, this.options, options, argv);
       var args = processArgv(this, argv, opts);
       if (args.expand === 'false' || opts.expand === false) {
         delete args.expand;
         return args;
       }
-      args.orig = orig;
+
+      utils.define(args, 'orig', orig);
       return args;
     });
   };
@@ -89,7 +90,7 @@ function processArgv(app, argv, options) {
   }
 
   var res = sortArgs(app, argv, options);
-  res.minimist = parsed;
+  utils.define(res, 'minimist', parsed);
   return res;
 }
 
