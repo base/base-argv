@@ -114,16 +114,41 @@ describe('base-argv', function() {
       assert.equal(typeof res.tasks, 'undefined');
     });
 
-    it('should set a default task when the `--file` flag is passed', function() {
-      var res = base.argv(['--file=foo']);
+    it('should set a default task when the `--file` flag is whitelisted', function() {
+      var res = base.argv(['--file=foo'], {whitelist: 'file'});
       assert.deepEqual(res.tasks, ['default']);
       assert.equal(res.file, 'foo');
     });
 
-    it('should set a default task when the `--cwd` flag is passed', function() {
-      var res = base.argv(['--cwd=foo']);
+    it('should set a default task when the `--cwd` flag is whitelisted', function() {
+      var res = base.argv(['--cwd=foo'], {whitelist: 'cwd'});
       assert.deepEqual(res.tasks, ['default']);
       assert.equal(res.cwd, 'foo');
+    });
+
+    it('should not a default task when an arbitrary flag is passed', function() {
+      var res = base.argv(['--one=two']);
+      assert.equal(typeof res.tasks, 'undefined');
+      assert.equal(res.one, 'two');
+    });
+
+    it('should set a default task when a whitelisted flag is passed', function() {
+      var res = base.argv(['--one=two'], {whitelist: 'one'});
+      assert.deepEqual(res.tasks, ['default']);
+      assert.equal(res.one, 'two');
+    });
+
+    it('should set a default task when multiple whitelisted flags are passed', function() {
+      var res = base.argv(['--a=b', '--c=d'], {whitelist: ['a', 'b', 'c']});
+      assert.deepEqual(res.tasks, ['default']);
+      assert.equal(res.a, 'b');
+      assert.equal(res.c, 'd');
+    });
+
+    it('should not set a default task when a whitelisted flag is passed and a task is passed', function() {
+      var res = base.argv(['--one=two', 'minify'], {whitelist: 'one'});
+      assert.deepEqual(res.tasks, ['minify']);
+      assert.equal(res.one, 'two');
     });
 
     it('should add tasks set as an options flag', function() {

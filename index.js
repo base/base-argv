@@ -16,13 +16,13 @@ module.exports = function(config) {
     this.define('argv', function(argv, options) {
       var orig = utils.extend({}, argv);
       var opts = utils.extend({}, config, this.options, options, argv);
-      var res = processArgv(this, argv, opts);
-      if (res.expand === 'false' || opts.expand === false) {
-        delete res.expand;
-        return res;
+      var args = processArgv(this, argv, opts);
+      if (args.expand === 'false' || opts.expand === false) {
+        delete args.expand;
+        return args;
       }
-      res.orig = orig;
-      return res;
+      args.orig = orig;
+      return args;
     });
   };
 };
@@ -66,15 +66,21 @@ function processArgv(app, argv, options) {
   // expand args with "expand-args"
   argv = utils.expandArgs(argv);
 
-  if (Array.isArray(argv.tasks)) {
-    utils.union(argv.tasks, tasks);
-  } else {
-    argv.tasks = tasks;
+  // union array tasks with tasks passed with `--tasks` flag
+  argv.tasks = utils.union(utils.arrayify(argv.tasks), tasks);
+
+  // allow a default task to be set when only whitelisted flags
+  // are passed (and no other tasks are defined)
+  var whitelist = utils.arrayify(opts.whitelist);
+  var wlen = whitelist.length;
+  while (wlen--) {
+    var ele = whitelist[wlen];
+    if (argv.hasOwnProperty(ele)) {
+      len--;
+    }
   }
 
-  if (argv.file) len--;
-  if (argv.cwd) len--;
-  if ((argv.file || argv.cwd || len === 0) && argv.tasks.length === 0) {
+  if ((len === 0 || argv.run) && argv.tasks.length === 0) {
     argv.tasks = ['default'];
   }
 
@@ -124,5 +130,27 @@ function sortArgs(app, argv, options) {
       res[key] = argv[key];
     }
   }
-  return res;
+  return toBoolean(res);
+}
+
+function toBoolean(argv) {
+  var special = ['set', 'option', 'options', 'data'];
+  for (var key in argv) {
+    var val = argv[key];
+
+    if (~special.indexOf(key) && typeof val === 'string') {
+      var obj = {};
+      var isFalse = val.indexOf('no') === 0;
+      if (isFalse) {
+        val = val.slice(2);
+        obj[val] = false;
+      } else {
+        obj[val] = true;
+      }
+      val = obj;
+    }
+    argv[key] = val;
+  }
+
+  return argv;
 }

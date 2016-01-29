@@ -29,12 +29,26 @@ require('array-union', 'union');
 require('expand-args');
 require('extend-shallow', 'extend');
 require('minimist');
+require = fn;
 
 /**
- * Restore `require`
+ * Cast the given `value` to an array.
+ *
+ * ```js
+ * utils.arrayify('foo');
+ * //=> ['foo']
+ *
+ * utils.arrayify(['foo']);
+ * //=> ['foo']
+ * ```
+ * @param {String|Array} `value`
+ * @return {Array}
+ * @api public
  */
 
-require = fn;
+utils.arrayify = function(val) {
+  return val ? (Array.isArray(val) ? val : [val]) : [];
+};
 
 /**
  * Expose `utils` modules
