@@ -1,7 +1,7 @@
 {
   "name": "base-argv",
   "description": "Plugin that post-processes the argv object from simplify how args are mapped to options, tasks and generators.",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "homepage": "https://github.com/jonschlinkert/base-argv",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "jonschlinkert/base-argv",
