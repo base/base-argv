@@ -1,7 +1,7 @@
 'use strict';
 
 var Base = require('base');
-var tasks = require('base-tasks');
+var tasks = require('base-task');
 var cli = require('base-cli');
 var argv = require('./');
 var app = new Base();
@@ -27,4 +27,10 @@ var args = app.argv(['--a:b=c', '--a d:e', '--f g']);
 console.log(args)
 
 var args = app.argv(['foo', 'bar', '--set=a:b']);
+console.log(args)
+
+var args = app.argv(['--file=index.js']);
+console.log(args)
+
+var args = app.argv(['--file=index.js'], {esc: ['file']});
 console.log(args)
