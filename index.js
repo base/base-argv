@@ -66,7 +66,7 @@ function processArgv(app, argv, options) {
   var len = keys.length;
 
   // expand args with "expand-args"
-  argv = utils.expandArgs(argv);
+  argv = utils.expandArgs(argv, opts);
 
   // union array tasks with tasks passed with `--tasks` flag
   argv.tasks = utils.union(utils.arrayify(argv.tasks), tasks);

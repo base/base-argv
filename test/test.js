@@ -3,7 +3,7 @@
 require('mocha');
 var minimist = require('minimist');
 var assert = require('assert');
-var tasks = require('base-tasks');
+var tasks = require('base-task');
 var Base = require('base');
 var argv = require('..');
 var base;
