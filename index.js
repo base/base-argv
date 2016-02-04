@@ -23,6 +23,7 @@ module.exports = function(config) {
       }
 
       utils.define(args, 'orig', orig);
+      this.emit('argv', args);
       return args;
     });
   };

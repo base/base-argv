@@ -32,6 +32,16 @@ describe('base-argv', function() {
       var res = base.argv(args);
       assert.deepEqual(res.minimist, minimist(args));
     });
+
+    it('should emit `argv`', function(cb) {
+      var args = ['--set=a:b', 'foo', 'bar'];
+      base.on('argv', function(argv) {
+        assert.deepEqual(argv.minimist, minimist(args));
+        cb();
+      });
+      
+      base.argv(args);
+    });
   });
 
   describe('options', function() {
