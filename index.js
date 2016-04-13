@@ -7,13 +7,26 @@
 
 'use strict';
 
+var debug = require('debug')('base:argv');
 var utils = require('./utils');
 
 module.exports = function(config) {
   return function() {
-    if (this.isRegistered('base-argv')) return;
+    if (!this.isApp || this.isRegistered('base-argv')) return;
+    debug('initializing <%s>, called from <%s>', __filename, module.parent.id);
+
+    /**
+     * Process and normalize command line arguments.
+     *
+     * @param {Object} `argv`
+     * @param {Object} `options`
+     * @return {Object}
+     * @api public
+     */
 
     this.define('argv', function(argv, options) {
+      debug('processing argv object', argv);
+
       var orig = Array.isArray(argv) ? argv.slice() : utils.extend({}, argv);
       var opts = utils.extend({}, config, this.options, options, argv);
       var args = processArgv(this, argv, opts);
@@ -33,9 +46,6 @@ module.exports = function(config) {
  * Expand command line arguments into the format we need to pass
  * to `app.cli.process()`.
  *
- * Add a `default` task is added to the `tasks` array if no tasks
- * were defined, and only whitelisted flags are passed.
- *
  * @param {Object} `app` Application instance
  * @param {Object} `argv` argv object, parsed by minimist
  * @param {Array} `options.first` The keys to pass to `app.cli.process()` first.
@@ -46,53 +56,12 @@ module.exports = function(config) {
 
 function processArgv(app, argv, options) {
   var opts = utils.extend({}, options);
-
-  if (Array.isArray(argv)) {
-    argv = utils.minimist(argv, options);
-  }
-
   if (opts.expand === false || argv.expand === 'false') {
     return argv;
   }
 
-  // shallow clone parsed args from minimist
-  var parsed = utils.extend({}, argv);
-
-  // move the splat array
-  var tasks = argv._;
-  delete argv._;
-
-  var keys = Object.keys(argv);
-  var len = keys.length;
-
-  // expand args with "expand-args"
   argv = utils.expandArgs(argv, opts);
-
-  // union array tasks with tasks passed with `--tasks` flag
-  argv.tasks = utils.union(utils.arrayify(argv.tasks), tasks);
-
-  // allow a default task to be set when only whitelisted flags
-  // are passed (and no other tasks are defined)
-  var whitelist = utils.arrayify(opts.whitelist);
-  var wlen = whitelist.length;
-  while (wlen--) {
-    var ele = whitelist[wlen];
-    if (argv.hasOwnProperty(ele)) {
-      len--;
-    }
-  }
-
-  if ((len === 0 || argv.run) && argv.tasks.length === 0) {
-    argv.tasks = ['default'];
-  }
-
-  if (argv.tasks.length === 0 && len > 0) {
-    delete argv.tasks;
-  }
-
-  var res = sortArgs(app, argv, options);
-  utils.define(res, 'minimist', parsed);
-  return res;
+  return sortArgs(app, argv, opts);
 }
 
 /**
@@ -153,6 +122,5 @@ function toBoolean(argv) {
     }
     argv[key] = val;
   }
-
   return argv;
 }
