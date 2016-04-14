@@ -1,4 +1,4 @@
-# base-argv
+# base-argv [![NPM version](https://img.shields.io/npm/v/base-argv.svg?style=flat)](https://www.npmjs.com/package/base-argv) [![NPM downloads](https://img.shields.io/npm/dm/base-argv.svg?style=flat)](https://npmjs.org/package/base-argv) [![Build Status](https://img.shields.io/travis/node-base/base-argv.svg?style=flat)](https://travis-ci.org/node-base/base-argv)
 
 > Plugin that post-processes the argv object from simplify how args are mapped to options, tasks and generators.
 
@@ -7,34 +7,21 @@
 Install with [npm](https://www.npmjs.com/):
 
 ```sh
-$ npm i base-argv --save
+$ npm install base-argv --save
 ```
 
 ## Usage
 
 ```js
 var Base = require('base-methods');
-var tasks = require('base-tasks');
 var argv = require('base-argv');
-var cli = require('base-cli');
 
 var app = new Base();
-// register plugins 
-app.use(cli());
-app.use(tasks());
 app.use(argv());
-
-app.task('foo', function() {
-  // run gulp plugins or something
-});
 
 // parse argv
 var args = app.argv(['foo', 'bar', '--set=a:b']);
-
-// if `base-cli` plugin is registered too, this
-// will automatically map the resulting object to
-// application methods
-app.cli.process(args);
+console.log(args);
 ```
 
 Results in:
@@ -43,38 +30,43 @@ Results in:
 { set: { a: 'b' }, tasks: [ 'foo', 'bar' ] }
 ```
 
-Additionally, the original `argv` object and the parsed minimist args are expose on non-enumerable properties, `orig` and `minimist` respectively.
-
-**Example**
-
-```js
-{ set: { a: 'b' },
-  tasks: [ 'foo', 'bar' ],
-  // non-enumerable
-  minimist: { _: [ 'foo', 'bar' ], set: 'a:b' },
-  // non-enumerable
-  orig: [ 'foo', 'bar', '--set=a:b' ] }
-```
+This object can then be passed to something else for further processing.
 
 ## Related projects
 
-* [base-cli](https://www.npmjs.com/package/base-cli): Plugin for base-methods that maps built-in methods to CLI args (also supports methods from a… [more](https://www.npmjs.com/package/base-cli) | [homepage](https://github.com/jonschlinkert/base-cli)
-* [base-config](https://www.npmjs.com/package/base-config): base-methods plugin that adds a `config` method for mapping declarative configuration values to other 'base'… [more](https://www.npmjs.com/package/base-config) | [homepage](https://github.com/jonschlinkert/base-config)
+You might also be interested in these projects:
+
+* [base-cli](https://www.npmjs.com/package/base-cli): Plugin for base-methods that maps built-in methods to CLI args (also supports methods from a… [more](https://www.npmjs.com/package/base-cli) | [homepage](https://github.com/node-base/base-cli)
+* [base-config](https://www.npmjs.com/package/base-config): base-methods plugin that adds a `config` method for mapping declarative configuration values to other 'base'… [more](https://www.npmjs.com/package/base-config) | [homepage](https://github.com/node-base/base-config)
 * [base-methods](https://www.npmjs.com/package/base-methods): base-methods is the foundation for creating modular, unit testable and highly pluggable node.js applications, starting… [more](https://www.npmjs.com/package/base-methods) | [homepage](https://github.com/jonschlinkert/base-methods)
 * [base-options](https://www.npmjs.com/package/base-options): Adds a few options methods to base-methods, like `option`, `enable` and `disable`. See the readme… [more](https://www.npmjs.com/package/base-options) | [homepage](https://github.com/jonschlinkert/base-options)
-* [base-plugins](https://www.npmjs.com/package/base-plugins): Upgrade's plugin support in base-methods to allow plugins to be called any time after init. | [homepage](https://github.com/jonschlinkert/base-plugins)
+* [base-plugins](https://www.npmjs.com/package/base-plugins): Upgrade's plugin support in base applications to allow plugins to be called any time after… [more](https://www.npmjs.com/package/base-plugins) | [homepage](https://github.com/node-base/base-plugins)
+
+## Contributing
+
+Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](https://github.com/jonschlinkert/base-argv/issues/new).
+
+## Building docs
+
+Generate readme and API documentation with [verb](https://github.com/verbose/verb):
+
+```sh
+$ npm install verb && npm run docs
+```
+
+Or, if [verb](https://github.com/verbose/verb) is installed globally:
+
+```sh
+$ verb
+```
 
 ## Running tests
 
 Install dev dependencies:
 
 ```sh
-$ npm i -d && npm test
+$ npm install -d && npm test
 ```
-
-## Contributing
-
-Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](https://github.com/jonschlinkert/base-argv/issues/new).
 
 ## Author
 
@@ -85,9 +77,9 @@ Pull requests and stars are always welcome. For bugs and feature requests, [plea
 
 ## License
 
-Copyright © 2015-2016 [Jon Schlinkert](https://github.com/jonschlinkert)
-Released under the MIT license.
+Copyright © 2016, [Jon Schlinkert](https://github.com/jonschlinkert).
+Released under the [MIT license](https://github.com/node-base/base-argv/blob/master/LICENSE).
 
 ***
 
-_This file was generated by [verb](https://github.com/verbose/verb) on January 29, 2016._
+_This file was generated by [verb](https://github.com/verbose/verb), v0.9.0, on April 14, 2016._
