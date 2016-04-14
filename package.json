@@ -23,6 +23,7 @@
   "dependencies": {
     "arr-diff": "^2.0.0",
     "arr-union": "^3.1.0",
+    "debug": "^2.2.0",
     "define-property": "^0.2.5",
     "expand-args": "^0.4.0",
     "extend-shallow": "^2.0.1",
@@ -30,7 +31,6 @@
   },
   "devDependencies": {
     "base": "^0.8.1",
-    "base-cli": "^0.4.26",
     "base-task": "^0.4.2",
     "gulp-format-md": "^0.1.7",
     "minimist": "^1.2.0",
@@ -64,6 +64,16 @@
     "layout": "default",
     "plugins": [
       "gulp-format-md"
+    ],
+    "run": true,
+    "tasks": [
+      "readme"
+    ],
+    "lint": {
+      "reflinks": true
+    },
+    "reflinks": [
+      "verb"
     ]
   }
 }
