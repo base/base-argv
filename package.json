@@ -1,7 +1,7 @@
 {
   "name": "base-argv",
   "description": "Plugin that post-processes the argv object from simplify how args are mapped to options, tasks and generators.",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "homepage": "https://github.com/node-base/base-argv",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "node-base/base-argv",
@@ -53,10 +53,10 @@
   "verb": {
     "related": {
       "list": [
+        "base",
         "base-cli",
         "base-config",
-        "base-methods",
-        "base-options",
+        "base-option",
         "base-plugins"
       ]
     },
@@ -73,7 +73,8 @@
       "reflinks": true
     },
     "reflinks": [
-      "verb"
+      "verb",
+      "base"
     ]
   }
 }
