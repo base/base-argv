@@ -101,26 +101,5 @@ function sortArgs(app, argv, options) {
       res[key] = argv[key];
     }
   }
-  return toBoolean(res);
-}
-
-function toBoolean(argv) {
-  var special = ['set', 'option', 'options', 'data'];
-  for (var key in argv) {
-    var val = argv[key];
-
-    if (~special.indexOf(key) && typeof val === 'string') {
-      var obj = {};
-      var isFalse = val.indexOf('no') === 0;
-      if (isFalse) {
-        val = val.slice(2);
-        obj[val] = false;
-      } else {
-        obj[val] = true;
-      }
-      val = obj;
-    }
-    argv[key] = val;
-  }
-  return argv;
+  return res;
 }
