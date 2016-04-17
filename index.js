@@ -25,6 +25,10 @@ module.exports = function(config) {
      */
 
     this.define('argv', function(argv, options) {
+      if (argv.processed ===  true) {
+        return argv;
+      }
+
       debug('processing argv object', argv);
 
       var orig = Array.isArray(argv) ? argv.slice() : utils.extend({}, argv);
@@ -36,6 +40,8 @@ module.exports = function(config) {
       }
 
       utils.define(args, 'orig', orig);
+      utils.define(args, 'processed', true);
+
       this.emit('argv', args);
       return args;
     });
