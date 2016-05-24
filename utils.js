@@ -13,7 +13,23 @@ require('arr-union', 'union');
 require('define-property', 'define');
 require('expand-args');
 require('extend-shallow', 'extend');
+require('is-registered');
+require('is-valid-instance');
 require = fn;
+
+/**
+ * Utils
+ */
+
+utils.isValid = function(app, prop) {
+  if (!utils.isValidInstance(app)) {
+    return false;
+  }
+  if (utils.isRegistered(app, 'base-argv')) {
+    return false;
+  }
+  return true;
+};
 
 /**
  * Cast the given `value` to an array.

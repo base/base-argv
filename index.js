@@ -12,7 +12,7 @@ var utils = require('./utils');
 
 module.exports = function(config) {
   return function() {
-    if (!this.isApp || this.isRegistered('base-argv')) return;
+    if (!utils.isValid(this)) return;
     debug('initializing <%s>, called from <%s>', __filename, module.parent.id);
 
     /**
@@ -25,7 +25,7 @@ module.exports = function(config) {
      */
 
     this.define('argv', function(argv, options) {
-      if (argv.processed ===  true) {
+      if (argv.processed === true) {
         return argv;
       }
 

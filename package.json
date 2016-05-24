@@ -1,6 +1,6 @@
 {
   "name": "base-argv",
-  "description": "Plugin that post-processes the argv object from simplify how args are mapped to options, tasks and generators.",
+  "description": "Plugin that post-processes the object returned from [yargs-parser] so that values can be passed over to base-cli",
   "version": "0.4.5",
   "homepage": "https://github.com/node-base/base-argv",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
@@ -21,13 +21,15 @@
     "test": "mocha"
   },
   "dependencies": {
-    "arr-diff": "^2.0.0",
+    "arr-diff": "^3.0.0",
     "arr-union": "^3.1.0",
     "debug": "^2.2.0",
     "define-property": "^0.2.5",
-    "expand-args": "^0.4.1",
+    "expand-args": "^0.4.2",
     "extend-shallow": "^2.0.1",
-    "lazy-cache": "^1.0.3"
+    "is-registered": "^0.1.4",
+    "is-valid-instance": "^0.1.0",
+    "lazy-cache": "^2.0.1"
   },
   "devDependencies": {
     "base": "^0.8.1",
@@ -73,6 +75,7 @@
       "reflinks": true
     },
     "reflinks": [
+      "yargs-parser",
       "verb",
       "base"
     ]
