@@ -1,7 +1,7 @@
 {
   "name": "base-argv",
   "description": "Plugin that post-processes the object returned from [yargs-parser] so that values can be passed over to base-cli",
-  "version": "0.4.5",
+  "version": "0.5.0",
   "homepage": "https://github.com/node-base/base-argv",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "node-base/base-argv",
